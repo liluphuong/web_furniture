@@ -1,24 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import Layout from "./components/layout/Layout";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { getProducts } from "./slices/productSlice";
+import { getCartItems } from "./slices/cartSlice";
+import { getOrdersByUser } from "./slices/orderSlice";
+import { getUserAddress } from "./slices/addressSlice";
+import { isUserLoggedIn } from "./slices/authSlice";
+import { getCategories } from "./slices/categorySlice";
 
 function App() {
+  const { isAuthenticated } = useSelector((state) =>  state.auth);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getProducts()).unwrap();
+    if (isAuthenticated) {
+      const fetchData = () => {
+        dispatch(getCartItems());
+        dispatch(getCategories());
+        dispatch(getUserAddress());
+        dispatch(getOrdersByUser());
+      };
+      fetchData();
+    } else {
+      const checkUser = () => {
+        dispatch(isUserLoggedIn());
+      };
+      checkUser();
+    }
+  }, [isAuthenticated]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Layout/>
   );
 }
 
